@@ -1,7 +1,9 @@
+from copy import deepcopy
+
 import biodivine_aeon as ba
 import parameter_names_generator as ppg
 
-from typing import List, Dict
+from typing import List
 
 
 class PerturbedGraph:
@@ -19,6 +21,70 @@ class PerturbedGraph:
         self._make_perturbed_and_original_bns(normalized_bn,
                                               can_over_express=can_over_express,
                                               can_knockout=can_knockout)
+
+        self.perturbed_stg = ba.SymbolicAsyncGraph(self.perturbed_bn)
+        self.unperturbed_stg = ba.SymbolicAsyncGraph(self.unperturbed_bn)
+
+    def __deepcopy__(self, memo):
+        cls = self.__class__
+        result = cls.__new__(cls)
+        memo[id(self)] = result
+        for k, v in self.__dict__.items():
+            setattr(result, k, deepcopy(v, memo))
+        return result
+
+
+    def get_perturbation_params(self):
+        return self.perturbation_params
+
+    def get_perturbed_stg(self):
+        return self.perturbed_stg
+
+    def get_unperturbed_stg(self):
+        return self.unperturbed_stg
+
+    def empty_colors(self):
+        return self.unperturbed_stg.empty_colors()
+
+    def empty_colored_vertices(self):
+        return self.unperturbed_stg.empty_colored_vertices()
+
+    def unit_colors(self):
+        return self.unperturbed_stg.unit_colors()
+
+    def unit_colored_vertices(self):
+        return self.unperturbed_stg.unit_colored_vertices()
+
+    # Return a subset of vertices and colors where the variable is perturbed to the given value.
+    #
+    # If no value is given, return vertices and colors where the variable is perturbed.
+    # If the value cannot be perturbed, return empty set.
+    def fix_perturbation(self, variable: str, value: bool):
+        cpy = deepcopy(self)
+        oe_par_name = ppg.get_over_expression_from_name(variable)
+        ko_par_name = ppg.get_knockout_from_name(variable)
+
+        if value is True:
+            cpy.perturbed_stg.fix_parameter(oe_par_name, True)
+            cpy.perturbed_stg.fix_parameter(ko_par_name, False)
+        else:
+            cpy.perturbed_stg.fix_parameter(oe_par_name, False)
+            cpy.perturbed_stg.fix_parameter(ko_par_name, True)
+
+        return cpy
+
+    # Return a subset of vertices and colors where the variable is perturbed to the given value.
+    #
+    # If no value is given, return vertices and colors where the variable is perturbed.
+    # If the value cannot be perturbed, return empty set.
+    def fix_unperturbed(self, variable: str):
+        oe_par_name = ppg.get_over_expression_from_name(variable)
+        ko_par_name = ppg.get_knockout_from_name(variable)
+
+        cpy = deepcopy(self)
+        cpy.perturbed_stg.fix_parameter(oe_par_name, False)
+        cpy.perturbed_stg.fix_parameter(ko_par_name, False)
+        return cpy
 
     """
     Create a copy of the given `model`, but make every regulation non-observable, and add an
@@ -110,14 +176,3 @@ class PerturbedGraph:
             else:
                 self.perturbed_bn.set_update_function(var, original_function)
                 self.perturbation_params[var] = []
-
-    def permanent_control(self, phenotype: Dict[str, bool]):
-        stg = ba.SymbolicAsyncGraph(self.perturbed_bn)
-
-        phenotype_compliant_space = stg.unit_colored_vertices()
-        for var, val in phenotype.values():
-            var_id = self.perturbed_bn.find_variable(var)
-            fix = stg.fix_variable(var_id, val)
-            phenotype_compliant_space = phenotype_compliant_space.intersect(fix)
-
-        attractors = ba.find_attractors(stg)
