@@ -1,7 +1,7 @@
 from copy import deepcopy
 
 import biodivine_aeon as ba
-import parameter_names_generator as ppg
+import parameter_names_generator as png
 
 from typing import List
 
@@ -61,8 +61,8 @@ class PerturbedGraph:
     # If the value cannot be perturbed, return empty set.
     def fix_perturbation(self, variable: str, value: bool):
         cpy = deepcopy(self)
-        oe_par_name = ppg.get_over_expression_from_name(variable)
-        ko_par_name = ppg.get_knockout_from_name(variable)
+        oe_par_name = png.get_over_expression_from_name(variable)
+        ko_par_name = png.get_knockout_from_name(variable)
 
         if value is True:
             cpy.perturbed_stg.fix_parameter(oe_par_name, True)
@@ -78,8 +78,8 @@ class PerturbedGraph:
     # If no value is given, return vertices and colors where the variable is perturbed.
     # If the value cannot be perturbed, return empty set.
     def fix_unperturbed(self, variable: str):
-        oe_par_name = ppg.get_over_expression_from_name(variable)
-        ko_par_name = ppg.get_knockout_from_name(variable)
+        oe_par_name = png.get_over_expression_from_name(variable)
+        ko_par_name = png.get_knockout_from_name(variable)
 
         cpy = deepcopy(self)
         cpy.perturbed_stg.fix_parameter(oe_par_name, False)
@@ -115,7 +115,7 @@ class PerturbedGraph:
                 normalized_bn.set_update_function(v, orig_function)
             else:
                 par_regulators = [normalized_bn.get_variable_name(r) for r in normalized_rg.regulators(v)]
-                par_name = ppg.get_explicit_update_function_parameter_from_var(original_bn, v)
+                par_name = png.get_explicit_update_function_parameter_from_var(original_bn, v)
                 normalized_bn.add_parameter({"name": par_name,
                                              "arity": len(par_regulators)})
                 normalized_bn.set_update_function(v, f"{par_name}({','.join(par_regulators)})")
@@ -143,8 +143,8 @@ class PerturbedGraph:
             original_function = normalized_bn.get_update_function(var)
             assert original_function is not None
 
-            ko_par_name = ppg.get_knockout_from_var(normalized_bn, var)
-            oe_par_name = ppg.get_over_expression_from_var(normalized_bn, var)
+            ko_par_name = png.get_knockout_from_var(normalized_bn, var)
+            oe_par_name = png.get_over_expression_from_var(normalized_bn, var)
             if var in can_knockout and var in can_over_express:
                 ko_par = self.perturbed_bn.add_parameter({"name": ko_par_name, "arity": 0})
                 ko_par2 = self.unperturbed_bn.add_parameter({"name": ko_par_name, "arity": 0})
@@ -152,10 +152,14 @@ class PerturbedGraph:
                 oe_par = self.perturbed_bn.add_parameter({"name": oe_par_name, "arity": 0})
                 oe_par2 = self.unperturbed_bn.add_parameter({"name": oe_par_name, "arity": 0})
                 assert (oe_par == oe_par2)
+                # print(self.perturbed_bn.get_update_function(var))
                 self.perturbed_bn.set_update_function(var, f"!{ko_par_name} & ({oe_par_name} | ({original_function}))")
+                # print(self.perturbed_bn.get_update_function(var))
+                # print(self.unperturbed_bn.get_update_function(var))
                 self.unperturbed_bn.set_update_function(var, f"({ko_par_name} | !{ko_par_name}) "
                                                              f" & ({oe_par_name} | !{oe_par_name}) "
                                                              f" & ({original_function})")
+                # print(self.unperturbed_bn.get_update_function(var))
                 self.perturbation_params[var] = [ko_par, oe_par]
             elif var in can_knockout:
                 ko_par = self.perturbed_bn.add_parameter({"name": ko_par_name, "arity": 0})

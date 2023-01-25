@@ -29,4 +29,4 @@ def get_explicit_update_function_parameter_from_var(bn: ba.BooleanNetwork, var_i
 
 
 def get_explicit_update_function_parameter_from_name(var_name: str):
-    return f"{FUNCTION_PREFIX}_var_name"
+    return f"{FUNCTION_PREFIX}_{var_name}"
