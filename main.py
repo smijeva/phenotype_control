@@ -4,9 +4,8 @@
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 import json
 import sys
-from datetime import time
 from pathlib import Path
-
+import time
 import biodivine_aeon as ba
 
 
@@ -15,6 +14,7 @@ from control import permanent_control
 from perturbed_graph import PerturbedGraph
 
 if __name__ == '__main__':
+    print('start!')
     model_name = sys.argv[1]
     phenotype_name = sys.argv[2]
     print(model_name)
@@ -24,9 +24,9 @@ if __name__ == '__main__':
         config = json.load(handle)
 
     model = config[model_name]['file']
-    phenotype = config[model_name][phenotype_name]
+    phenotype = config[model_name]['targets'][phenotype_name]
 
-    bn = ba.BooleanNetwork.from_aeon(Path(f'/phentoype_benchmark/{model}').read_text())
+    bn = ba.BooleanNetwork.from_aeon(Path(f'./phentoype_benchmark/{model}').read_text())
     vars = bn.variables()
     rg = bn.graph()
     pg = PerturbedGraph(bn)

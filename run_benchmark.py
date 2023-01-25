@@ -13,7 +13,7 @@ class BenchmarkDefinition:
 		self.model_name = model_name
 		self.model_file = model_file
 		self.size = size
-		self.phenotype_name = phenotype
+		self.phenotype_name = phenotype_name
 		self.phenotype = phenotype
 
 RE_TIME = re.compile("\\s*real\\s*(\\d+\\.?\\d*)\\s*")
@@ -28,8 +28,8 @@ if __name__ == "__main__":
 	# Set timeout binary based on OS (macOS needs gtimeout)
 	TIMEOUT = 'none'
 	PARALLEL = 8
-	CUT_OFF = '1m'
-	SCRIPT = 'main.py'
+	CUT_OFF = '4h'
+	SCRIPT = 'python3 main.py'
 	BENCH_DIR = "phentoype_benchmark"
 	AGGREGATION_LIST = []
 
@@ -40,7 +40,7 @@ if __name__ == "__main__":
 	os.mkdir(OUT_DIR)
 
 	TIMES = open(OUT_DIR + "/" + BENCH_DIR.replace("/", "_") + "_" + os.path.basename(SCRIPT) + "_times.csv", "w")
-	def PROCESS_RESULT(process, name, output_file):
+	def PROCESS_RESULT(process, name, phenotype, output_file):
 		print("Finished:", output_file)
 		is_success = process.exitcode == 0
 		with open(output_file, 'r') as f:
@@ -53,24 +53,24 @@ if __name__ == "__main__":
 					# Success, we found time!
 					time = str(RE_TIME.match(time_line).group(1))
 					print("Success. Elapsed: ", time)
-					TIMES.write(name + ", " + time + "\n")
+					TIMES.write(name + ", " + phenotype + ", " + time + "\n")
 					AGGREGATION_LIST.append(float(time))
 				else:
 					# Fail: output exists but does not have
 					# correct time format.
 					print("Fail. Last line of output:")
 					print(lines[-1])
-					TIMES.write(name + ", " + "fail" + "\n")
+					TIMES.write(name + ", " + phenotype + ", " + "fail" + "\n")
 			elif len(lines) > 0:
 				# Fail: There is some output, but not enough
 				# for a successful process.
 				print("Fail. Last line of output:")
 				print(lines[-1])
-				TIMES.write(name + ", " + "fail" + "\n")
+				TIMES.write(name + ", " + phenotype + ", " + "fail" + "\n")
 			else:
 				# Fail: There is no output.
 				print("Fail. No output found.")
-				TIMES.write(name + ", " + "fail" + "\n")
+				TIMES.write(name + ", " + phenotype + ", " + "fail" + "\n")
 		TIMES.flush()
 
 
@@ -78,11 +78,12 @@ if __name__ == "__main__":
 		benchmark_definition = json.load(handle)
 
 	BENCHMARKS = []
-	for model, definition in benchmark_definition:
-		for pn, p in benchmark_definition["targets"]:
+	for model, definition in benchmark_definition.items():
+		for pn, p in definition["targets"].items():
 			BENCHMARKS.append(BenchmarkDefinition(model, definition["file"], definition["vars"], pn, p))
 
-	BENCHMARKS = sorted(BENCHMARKS, lambda x: x.size)
+	BENCHMARKS = sorted(BENCHMARKS, key=lambda x: x.size)
+	print(len(BENCHMARKS))
 
 	if TIMEOUT == 'none':
 		code = os.system('timeout --help > /dev/null 2>&1')
@@ -105,19 +106,20 @@ if __name__ == "__main__":
 		while len(ACTIVE) > 0 or len(BENCHMARKS) > 0:
 			while len(ACTIVE) < PARALLEL and len(BENCHMARKS) > 0:
 				bench = BENCHMARKS.pop(0)
-				name = bench.model_file
+				name = bench.model_name
+				phenotype = bench.phenotype_name
 				output_file = f'{bench.model_name}_{bench.phenotype_name}.out'
 				command = TIMEOUT + " " + CUT_OFF + " time -p " + SCRIPT + " " + bench.model_name + " " + bench.phenotype_name + " > " + output_file + " 2>&1"
 				process = Process(target=SPAWN, args=(command,))
 				process.start()
-				ACTIVE.append((process, name, output_file))
+				ACTIVE.append((process, name, phenotype, output_file))
 			time.sleep(1)  # Sleep 1s
 			STILL_ACTIVE = []
-			for (process, name, output_file) in ACTIVE:
+			for (process, name, phenotype, output_file) in ACTIVE:
 				if process.is_alive():
-					STILL_ACTIVE.append((process, name, output_file))
+					STILL_ACTIVE.append((process, name, phenotype, output_file))
 				else:
-					PROCESS_RESULT(process, name, output_file)
+					PROCESS_RESULT(process, name, phenotype, output_file)
 			ACTIVE = STILL_ACTIVE
 
 
