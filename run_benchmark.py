@@ -27,8 +27,8 @@ def SPAWN(command):
 if __name__ == "__main__":
 	# Set timeout binary based on OS (macOS needs gtimeout)
 	TIMEOUT = 'none'
-	PARALLEL = 8
-	CUT_OFF = '4h'
+	PARALLEL = 1
+	CUT_OFF = '12h'
 	SCRIPT = 'python3 main.py'
 	BENCH_DIR = "phentoype_benchmark"
 	AGGREGATION_LIST = []
@@ -74,7 +74,7 @@ if __name__ == "__main__":
 		TIMES.flush()
 
 
-	with open("phentoype_benchmark/benchmark.json") as handle:
+	with open("phentoype_benchmark/benchmark_one_phenotype.json") as handle:
 		benchmark_definition = json.load(handle)
 
 	BENCHMARKS = []
