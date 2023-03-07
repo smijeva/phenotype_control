@@ -11,19 +11,21 @@ class PerturbedGraph:
                  original_bn: ba.BooleanNetwork,
                  can_over_express: List[ba.VariableId] = None,
                  can_knockout: List[ba.VariableId] = None):
-        if can_over_express is None:
-            can_over_express = original_bn.variables()
-        if can_knockout is None:
-            can_knockout = original_bn.variables()
+        normalized_bn = self._normalize_bn(original_bn, can_over_express, can_knockout)
 
-        normalized_bn = self._normalize_bn(original_bn)
+        if can_over_express is None:
+            can_over_express = normalized_bn.variables()
+        if can_knockout is None:
+            can_knockout = normalized_bn.variables()
 
         self._make_perturbed_and_original_bns(normalized_bn,
                                               can_over_express=can_over_express,
                                               can_knockout=can_knockout)
 
         self.perturbed_stg = ba.SymbolicAsyncGraph(self.perturbed_bn)
+        print("perturbed set, setting unperturbed")
         self.unperturbed_stg = ba.SymbolicAsyncGraph(self.unperturbed_bn)
+        print("unperturbed set, constructor done")
 
     def __deepcopy__(self, memo):
         cls = self.__class__
@@ -93,7 +95,9 @@ class PerturbedGraph:
     """
 
     @staticmethod
-    def _normalize_bn(original_bn: ba.BooleanNetwork) -> ba.BooleanNetwork:
+    def _normalize_bn(original_bn: ba.BooleanNetwork,
+                 can_over_express: List[ba.VariableId],
+                 can_knockout: List[ba.VariableId]) -> ba.BooleanNetwork:
         # Copy graph, but with non-observable regulations.
         variable_names = [original_bn.get_variable_name(v) for v in original_bn.variables()]
         normalized_rg = ba.RegulatoryGraph(variable_names)
@@ -110,10 +114,12 @@ class PerturbedGraph:
 
         # Copy update functions
         for v in original_bn.variables():
+            v_name = normalized_bn.get_variable_name(v)
             orig_function = original_bn.get_update_function(v)
             if orig_function is not None:
                 normalized_bn.set_update_function(v, orig_function)
-            else:
+            elif can_knockout is None or can_over_express is None or v_name in can_knockout or v_name in can_over_express:
+            # else:
                 par_regulators = [normalized_bn.get_variable_name(r) for r in normalized_rg.regulators(v)]
                 par_name = png.get_explicit_update_function_parameter_from_var(original_bn, v)
                 normalized_bn.add_parameter({"name": par_name,
@@ -141,7 +147,7 @@ class PerturbedGraph:
         for var in reversed(normalized_bn.variables()):
             # Function exists thanks to the normalization in the previous step
             original_function = normalized_bn.get_update_function(var)
-            assert original_function is not None
+            assert original_function is not None or (var not in can_over_express and var not in can_knockout), f"{normalized_bn.get_variable_name(var)}"
 
             ko_par_name = png.get_knockout_from_var(normalized_bn, var)
             oe_par_name = png.get_over_expression_from_var(normalized_bn, var)
@@ -179,4 +185,5 @@ class PerturbedGraph:
                 self.perturbation_params[var] = [oe_par]
             else:
                 self.perturbed_bn.set_update_function(var, original_function)
+                self.unperturbed_bn.set_update_function(var, original_function)
                 self.perturbation_params[var] = []

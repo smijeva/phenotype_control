@@ -75,22 +75,36 @@ def permanent_control(pg: PerturbedGraph, phenotype: Dict[str, bool], control_ma
     print('Starting space restricting', str(datetime.datetime.now()))
     perturbations_violating_space = stg.unit_colored_vertices()
 
-    for var_id in stg.network().variables():
+    for var, pp in pg.get_perturbation_params().items():
+        if len(pp) == 0:
+            continue
+
         oe_par_name = parameter_names_generator.get_over_expression_from_var(stg.network(), var_id)
         ko_par_name = parameter_names_generator.get_knockout_from_var(stg.network(), var_id)
 
-        # Both KO and OE cannot be true at the same time
-        knockout_and_overexpression = (stg.unit_colored_vertices()
-                                          .intersect_colors(stg.fix_parameter(oe_par_name, True))
-                                          .intersect_colors(stg.fix_parameter(ko_par_name, True)))
-        # When overexpression holds, the variable cannot gain False value
-        outside_overexpression = (stg.unit_colored_vertices()
-                                     .intersect_colors(stg.fix_parameter(oe_par_name, True))
-                                     .intersect(stg.fix_variable(var_id, False)))
-        # When knockout holds, the variable cannot gain True value
-        outside_knockout = (stg.unit_colored_vertices()
-                               .intersect_colors(stg.fix_parameter(ko_par_name, True))
-                               .intersect(stg.fix_variable(var_id, True)))
+        if len(pp) == 2:
+            # Both KO and OE cannot be true at the same time
+            knockout_and_overexpression = (stg.unit_colored_vertices()
+                                              .intersect_colors(stg.fix_parameter(oe_par_name, True))
+                                              .intersect_colors(stg.fix_parameter(ko_par_name, True)))
+        else:
+            knockout_and_overexpression = stg.empty_colored_vertices()
+
+        if pp[0] == oe_par_name:
+            # When overexpression holds, the variable cannot gain False value
+            outside_overexpression = (stg.unit_colored_vertices()
+                                         .intersect_colors(stg.fix_parameter(oe_par_name, True))
+                                         .intersect(stg.fix_variable(var_id, False)))
+        else:
+            outside_overexpression = stg.empty_colored_vertices()
+
+        if pp[0] == ko_par_name:
+            # When knockout holds, the variable cannot gain True value
+            outside_knockout = (stg.unit_colored_vertices()
+                                   .intersect_colors(stg.fix_parameter(ko_par_name, True))
+                                   .intersect(stg.fix_variable(var_id, True)))
+        else:
+            outside_knockout = stg.empty_colored_vertices()
 
         perturbations_violating_space = (perturbations_violating_space.minus(knockout_and_overexpression)
                                                                       .minus(outside_overexpression)
@@ -122,8 +136,8 @@ def permanent_control(pg: PerturbedGraph, phenotype: Dict[str, bool], control_ma
                                     .minus(phenotype_compliant_space)
                                     .minus(perturbations_violating_space))
     # attractors = my_find_attractors(stg, phenotype_violating_space)
-    # spurious_attractors = ba.FixedPoints.symbolic(stg, phenotype_violating_space)
-    spurious_attractors = my_find_attractors(stg, phenotype_violating_space)
+    spurious_attractors = ba.FixedPoints.symbolic(stg, phenotype_violating_space)
+    # spurious_attractors = my_find_attractors(stg, phenotype_violating_space)
 
     # The params (colours x perturbations) which do not violate the phenotype are OK
     return stg.unit_colors().minus(spurious_attractors.colors())

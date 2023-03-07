@@ -1,0 +1,197 @@
+AJ_b1 -? AJ_b1
+AJ_b2 -? AJ_b1
+ECad -? AJ_b1
+AJ_b1 -? AJ_b2
+ECad -? AJ_b2
+ECad_AJ_b1 -? AJ_b2
+ECad_AJ_b2 -? AJ_b2
+ILK -? AKT
+PI3K -? AKT
+BCat_AJ -? BCat
+GSK3B -? BCat
+HGFR -? BCat
+ECad_AJ_b1 -? BCat_AJ
+FAK_SRC_b1 -? BCat_AJ
+JNK -? BCat_AJ
+RPTP -? BCat_AJ
+WNT -? CK1
+DVL -? CSL
+NOTCH -? CSL
+CK1 -? DVL
+YAP_TAZ -? DVL
+SLUG -? ECad
+SNAIL -? ECad
+ZEB -? ECad
+miR200 -? ECad
+ECad -? ECad_AJ_b1
+ECad_AJ_b1 -? ECad_AJ_b1
+ECad_AJ_b2 -? ECad_AJ_b1
+FAK_SRC_b1 -? ECad_AJ_b1
+RPTP -? ECad_AJ_b1
+BCat_AJ -? ECad_AJ_b2
+ECad -? ECad_AJ_b2
+ECad_AJ_b1 -? ECad_AJ_b2
+FAK_SRC_b1 -? ECad_AJ_b2
+RPTP -? ECad_AJ_b2
+EGF -? EGFR
+FAK_SRC_b1 -? EGFR
+FAK_SRC_b2 -? EGFR
+ITG_AB -? EGFR
+RPTP -? EGFR
+TGFBR -? EGFR
+MEK -? ERK
+EGFR -? FAK_SRC_b1
+FAK_SRC_b1 -? FAK_SRC_b1
+FAK_SRC_b2 -? FAK_SRC_b1
+HGFR -? FAK_SRC_b1
+ITG_AB -? FAK_SRC_b1
+ROS -? FAK_SRC_b1
+EGFR -? FAK_SRC_b2
+FAK_SRC_b1 -? FAK_SRC_b2
+HGFR -? FAK_SRC_b2
+ITG_AB -? FAK_SRC_b2
+ROS -? FAK_SRC_b2
+ERK -? FAT4
+FAT4_L -? FAT4
+FAT4_L -? FAT4_L
+FAK_SRC_b1 -? FA_b1
+FA_b1 -? FA_b1
+FA_b2 -? FA_b1
+PAK -? FA_b1
+FAK_SRC_b1 -? FA_b2
+FA_b1 -? FA_b2
+FA_b2 -? FA_b2
+FA_b3 -? FA_b2
+PAK -? FA_b2
+FAK_SRC_b1 -? FA_b3
+FA_b1 -? FA_b3
+FA_b2 -? FA_b3
+ITG_AB -? FA_b3
+PAK -? FA_b3
+AKT -? GSK3B
+DVL -? GSK3B
+ERK -? GSK3B
+HGF -? HGFR
+ITG_AB -? HGFR
+RPTP -? HGFR
+NFkB -? HIF1a
+STAT3 -? HIF1a
+ITG_AB -? ILK
+PI3K -? ILK
+ECM -? ITG_AB
+RAP1 -? ITG_AB
+EGFR -? JAK
+IL6 -? JAK
+FAK_SRC_b1 -? JNK
+ROS -? JNK
+RPTP -? JNK
+TGFBR -? JNK
+BCat_AJ -? LATS
+ECad_AJ_b1 -? LATS
+ECad_AJ_b2 -? LATS
+FAT4 -? LATS
+PI3K -? LATS
+RAF1 -? MEK
+AKT -? NFkB
+CSL -? NFkB
+ROS -? NFkB
+TGFBR -? NFkB
+DELTA -? NOTCH
+FAK_SRC_b1 -? PAK
+PI3K -? PAK
+FAK_SRC_b1 -? PI3K
+RAS -? PI3K
+RAS -? RAF1
+ECad_AJ_b1 -? RAP1
+ECad_AJ_b2 -? RAP1
+FAK_SRC_b1 -? RAP1
+p120_AJ -? RAP1
+EGFR -? RAS
+FAK_SRC_b1 -? RAS
+HGFR -? RAS
+JAK -? RAS
+TGFBR -? RAS
+FAK_SRC_b1 -? RPTP
+FAK_SRC_b2 -? RPTP
+ROS -? RPTP
+RPTP_L -? RPTP
+CSL -? SLUG
+ERK -? SLUG
+GSK3B -? SLUG
+HIF1a -? SLUG
+TCF_LEF -? SLUG
+miR200 -? SLUG
+TGFBR -? SMAD
+YAP_TAZ -? SMAD
+CSL -? SNAIL
+ERK -? SNAIL
+GSK3B -? SNAIL
+HIF1a -? SNAIL
+JNK -? SNAIL
+NFkB -? SNAIL
+PAK -? SNAIL
+SMAD -? SNAIL
+STAT3 -? SNAIL
+TCF_LEF -? SNAIL
+FAK_SRC_b1 -? STAT3
+JAK -? STAT3
+BCat -? TCF_LEF
+TGFB -? TGFBR
+LATS -? YAP_TAZ
+SLUG -? ZEB
+SNAIL -? ZEB
+miR200 -? ZEB
+SNAIL -? miR200
+ZEB -? miR200
+CK1 -? p120_AJ
+ECad_AJ_b1 -? p120_AJ
+ECad_AJ_b2 -? p120_AJ
+RAP1 -? p120_AJ
+p120_AJ -? p120_AJ
+$AJ_b1: ((AJ_b2 & AJ_b1) | ECad)
+$AJ_b2: (ECad_AJ_b2 & (ECad_AJ_b1 & (ECad & AJ_b1)))
+$AKT: (PI3K & ILK)
+$BCat: (HGFR | (!GSK3B | !BCat_AJ))
+$BCat_AJ: ((RPTP & (!JNK & ECad_AJ_b1)) | (!JNK & (!FAK_SRC_b1 & ECad_AJ_b1)))
+$CK1: WNT
+$CSL: (NOTCH & !DVL)
+$DVL: (YAP_TAZ & CK1)
+$ECad: ((miR200 & (!ZEB & !SLUG)) | (!ZEB & (!SNAIL & !SLUG)))
+$ECad_AJ_b1: ((ECad_AJ_b2 & ECad_AJ_b1) | ((RPTP & ECad) | (!FAK_SRC_b1 & ECad)))
+$ECad_AJ_b2: ((RPTP & (ECad_AJ_b1 & (ECad & BCat_AJ))) | (!FAK_SRC_b1 & (ECad_AJ_b1 & (ECad & BCat_AJ))))
+$EGFR: ((!RPTP & (ITG_AB & (FAK_SRC_b2 & FAK_SRC_b1))) | ((TGFBR & !RPTP) | (!RPTP & EGF)))
+$ERK: MEK
+$FAK_SRC_b1: ((FAK_SRC_b2 & FAK_SRC_b1) | (ROS | (ITG_AB | (HGFR | EGFR))))
+$FAK_SRC_b2: ((ITG_AB & (HGFR & (FAK_SRC_b1 & EGFR))) | (ROS & (ITG_AB & FAK_SRC_b1)))
+$FAT4: (FAT4_L & !ERK)
+$FAT4_L: FAT4_L
+$FA_b1: ((FA_b2 & FA_b1) | (PAK | FAK_SRC_b1))
+$FA_b2: ((FA_b3 & (FA_b2 & FA_b1)) | (PAK & (FA_b1 & FAK_SRC_b1)))
+$FA_b3: (PAK & (ITG_AB & (FA_b2 & (FA_b1 & FAK_SRC_b1))))
+$GSK3B: (!ERK & (!DVL & !AKT))
+$HGFR: ((!RPTP & ITG_AB) | (!RPTP & HGF))
+$HIF1a: (STAT3 & NFkB)
+$ILK: (PI3K & ITG_AB)
+$ITG_AB: (RAP1 & ECM)
+$JAK: (IL6 | EGFR)
+$JNK: ((TGFBR & !RPTP) | ((!RPTP & ROS) | (!RPTP & FAK_SRC_b1)))
+$LATS: ((!PI3K & (ECad_AJ_b2 & (ECad_AJ_b1 & BCat_AJ))) | (!PI3K & FAT4))
+$MEK: RAF1
+$NFkB: (TGFBR | (ROS | (CSL | AKT)))
+$NOTCH: DELTA
+$PAK: (PI3K | FAK_SRC_b1)
+$PI3K: (RAS | FAK_SRC_b1)
+$RAF1: RAS
+$RAP1: ((!p120_AJ & (ECad_AJ_b2 & ECad_AJ_b1)) | FAK_SRC_b1)
+$RAS: (TGFBR | (JAK | (HGFR | (FAK_SRC_b1 | EGFR))))
+$RPTP: ((RPTP_L & (!ROS & !FAK_SRC_b2)) | (RPTP_L & (!ROS & !FAK_SRC_b1)))
+$SLUG: ((!miR200 & (TCF_LEF & !GSK3B)) | ((!miR200 & (HIF1a & !GSK3B)) | ((!miR200 & (!GSK3B & ERK)) | (!miR200 & (!GSK3B & CSL)))))
+$SMAD: (YAP_TAZ & TGFBR)
+$SNAIL: ((STAT3 & (NFkB & (JNK & (HIF1a & ERK)))) | ((PAK & (NFkB & (JNK & (HIF1a & ERK)))) | ((STAT3 & (NFkB & (JNK & (HIF1a & CSL)))) | ((PAK & (NFkB & (JNK & (HIF1a & CSL)))) | ((STAT3 & (NFkB & (HIF1a & (ERK & CSL)))) | ((PAK & (NFkB & (HIF1a & (ERK & CSL)))) | ((STAT3 & (JNK & (HIF1a & (ERK & CSL)))) | ((PAK & (JNK & (HIF1a & (ERK & CSL)))) | ((!TCF_LEF & (STAT3 & (NFkB & HIF1a))) | ((!TCF_LEF & (PAK & (NFkB & HIF1a))) | ((!TCF_LEF & (STAT3 & (JNK & HIF1a))) | ((!TCF_LEF & (PAK & (JNK & HIF1a))) | ((!TCF_LEF & (STAT3 & (HIF1a & ERK))) | ((!TCF_LEF & (PAK & (HIF1a & ERK))) | ((NFkB & (JNK & (!GSK3B & ERK))) | ((!TCF_LEF & (STAT3 & (HIF1a & CSL))) | ((!TCF_LEF & (PAK & (HIF1a & CSL))) | ((NFkB & (JNK & (!GSK3B & CSL))) | ((NFkB & (!GSK3B & (ERK & CSL))) | ((JNK & (!GSK3B & (ERK & CSL))) | ((STAT3 & (SMAD & HIF1a)) | ((SMAD & (PAK & HIF1a)) | ((!TCF_LEF & (NFkB & !GSK3B)) | ((!TCF_LEF & (JNK & !GSK3B)) | ((!TCF_LEF & (!GSK3B & ERK)) | ((!TCF_LEF & (!GSK3B & CSL)) | (SMAD & !GSK3B)))))))))))))))))))))))))))
+$STAT3: (JAK | FAK_SRC_b1)
+$TCF_LEF: BCat
+$TGFBR: TGFB
+$YAP_TAZ: !LATS
+$ZEB: ((!miR200 & SNAIL) | (!miR200 & SLUG))
+$miR200: (!ZEB & !SNAIL)
+$p120_AJ: ((p120_AJ & (ECad_AJ_b2 & (ECad_AJ_b1 & !CK1))) | (RAP1 & (ECad_AJ_b2 & (ECad_AJ_b1 & !CK1))))
